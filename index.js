@@ -13,14 +13,22 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/', (req, res) => {
+app.post('/', (req, res, next) => {
   let url = req.body.original_url;
   let short_url = shortener(url);
-  let shortString = short_url[0];
-  let originalUrl = short_url[1];
-  redisClient.set(shortString, originalUrl);
-  // SET shortString originalUrl;
-  res.redirect('/');
+  redisClient.set(short_url[0], short_url[1], err => {
+    err ? next(err) : res.redirect('/');
+  });
+});
+
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  if (err.stack) {
+    err = err.stack;
+  }
+  res.status(500).json({ error: err });
 });
 
 app.listen(3000);
