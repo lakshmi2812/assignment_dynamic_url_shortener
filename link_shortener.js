@@ -4,7 +4,8 @@ const urlShortener = url => {
     .toString(36)
     .substring(7);
   string += generator;
-  return { url: string };
+  console.log([string, url]);
+  return [string, url];
 };
 
-module.exports = { urlShortener };
+module.exports = urlShortener;
